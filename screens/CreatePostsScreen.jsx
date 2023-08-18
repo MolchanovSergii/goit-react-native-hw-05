@@ -1,32 +1,163 @@
-import { Text, View, StyleSheet } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  TextInput,
+} from "react-native";
+import { Camera } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
+import * as Location from "expo-location";
 
-const CreatePostsScreen = () => {
+import { Feather } from "@expo/vector-icons";
+
+const CreatePostsScreen = ({ navigation }) => {
+  const [hasPermission, setHasPermission] = useState(null);
+  const [cameraRef, setCameraRef] = useState(null);
+  const [type, setType] = useState(Camera.Constants.Type.back);
+
+  const [photoName, setPhotoName] = useState("");
+  const [locationName, setLocationName] = useState("");
+  const [userLocation, setUserLocation] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      await MediaLibrary.requestPermissionsAsync();
+
+      setHasPermission(status === "granted");
+    })();
+  }, []);
+
+  if (hasPermission === null) {
+    return <View />;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
+
+  const handlePublish = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access location was denied");
+      return;
+    }
+
+    let location = await Location.getCurrentPositionAsync({});
+    setUserLocation(location);
+
+    navigation.navigate("Posts");
+  };
+
   return (
     <View style={style.container}>
-      <Text style={style.title}>CreatePostsScreen</Text>
+      <Camera style={style.camera} type={type} ref={setCameraRef}>
+        <View style={style.photoView}>
+          <TouchableOpacity
+            style={style.flipContainer}
+            onPress={() => {
+              setType(
+                type === Camera.Constants.Type.back
+                  ? Camera.Constants.Type.front
+                  : Camera.Constants.Type.back
+              );
+            }}
+          >
+            <Text style={{ fontSize: 18, marginBottom: 10, color: "white" }}>
+              {" "}
+              Flip{" "}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={style.button}
+            onPress={async () => {
+              if (cameraRef) {
+                const { uri } = await cameraRef.takePictureAsync();
+                await MediaLibrary.createAssetAsync(uri);
+              }
+            }}
+          >
+            <View style={style.takePhotoOut}>
+              <Feather name="camera" size={24} color="black" />
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Camera>
+      <TextInput
+        placeholder="Назва"
+        style={style.input}
+        value={photoName}
+        onChangeText={setPhotoName}
+      />
+      <TextInput
+        placeholder="Місцевість"
+        style={style.input}
+        value={locationName}
+        onChangeText={setLocationName}
+      />
+      <TouchableOpacity onPress={handlePublish} style={style.publishButton}>
+        <Text>Опублікувати</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const style = StyleSheet.create({
   container: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
+    flex: 1,
     paddingLeft: 16,
     paddingRight: 16,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0, 0, 0, 0.3)",
     borderBottomStyle: "solid",
   },
-  title: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 17,
-    fontWeight: 500,
-    lineHeight: 22,
-    letterSpacing: -0.41,
-    textAlign: "center",
-    marginBottom: 33,
+  camera: { height: 240, marginTop: 10, marginBottom: 10 },
+  photoView: {
+    flex: 1,
+    backgroundColor: "transparent",
+    justifyContent: "flex-end",
+  },
+
+  flipContainer: {
+    flex: 0.2,
+    alignSelf: "flex-end",
+    paddingRight: 10,
+  },
+
+  button: {
+    position: "absolute",
+    bottom: "50%",
+    left: "50%",
+    transform: [{ translateX: -25 }, { translateY: 25 }],
+  },
+
+  takePhotoOut: {
+    borderWidth: 2,
+    borderColor: "transparent",
+    height: 60,
+    width: 60,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 50,
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+  },
+  input: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingLeft: 10,
+  },
+
+  publishButton: {
+    height: 40,
+
+    backgroundColor: "#FF6C00",
+    padding: 10,
+    borderRadius: 50,
+    alignItems: "center",
   },
 });
 
