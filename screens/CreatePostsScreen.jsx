@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
@@ -20,6 +21,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const [photoName, setPhotoName] = useState("");
   const [locationName, setLocationName] = useState("");
   const [userLocation, setUserLocation] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -38,9 +40,11 @@ const CreatePostsScreen = ({ navigation }) => {
   }
 
   const handlePublish = async () => {
+    setLoading(true);
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
       alert("Permission to access location was denied");
+      setLoading(false);
       return;
     }
 
@@ -96,9 +100,13 @@ const CreatePostsScreen = ({ navigation }) => {
         value={locationName}
         onChangeText={setLocationName}
       />
-      <TouchableOpacity onPress={handlePublish} style={style.publishButton}>
-        <Text>Опублікувати</Text>
-      </TouchableOpacity>
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <TouchableOpacity onPress={handlePublish} style={style.publishButton}>
+          <Text>Опублікувати</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
