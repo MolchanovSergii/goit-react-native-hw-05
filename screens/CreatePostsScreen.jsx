@@ -21,6 +21,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const [photoName, setPhotoName] = useState("");
   const [locationName, setLocationName] = useState("");
   const [userLocation, setUserLocation] = useState(null);
+  const [photoUri, setPhotoUri] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -32,12 +33,31 @@ const CreatePostsScreen = ({ navigation }) => {
     })();
   }, []);
 
+  useEffect(() => {
+    if (photoUri) {
+      navigation.navigate("Posts", {
+        userLocation,
+        photoUri,
+        photoName,
+        locationName,
+      });
+    }
+  }, [photoUri]);
+
   if (hasPermission === null) {
     return <View />;
   }
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
+
+  const handleTakePhoto = async () => {
+    if (cameraRef) {
+      const { uri } = await cameraRef.takePictureAsync();
+      await MediaLibrary.createAssetAsync(uri);
+      setPhotoUri(uri);
+    }
+  };
 
   const handlePublish = async () => {
     setLoading(true);
@@ -51,7 +71,9 @@ const CreatePostsScreen = ({ navigation }) => {
     let location = await Location.getCurrentPositionAsync({});
     setUserLocation(location);
 
-    navigation.navigate("Posts");
+    await handleTakePhoto();
+
+    setLoading(false);
   };
 
   return (

@@ -6,6 +6,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import RegistrationScreen from "./screens/RegistrationScreen";
 import LoginScreen from "./screens/LoginScreen";
 import Home from "./screens/Home";
+import CommentsScreen from "./screens/CommentsScreen";
+import MapScreen from "./screens/MapScreen";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -35,6 +37,16 @@ export default function App() {
           name="Home"
           component={Home}
           options={{ headerShown: false }}
+        />
+        <MainStack.Screen
+          name="CommentsScreen"
+          component={CommentsScreen}
+          options={{ headerShown: true }}
+        />
+        <MainStack.Screen
+          name="MapScreen"
+          component={MapScreen}
+          options={{ headerShown: true }}
         />
       </MainStack.Navigator>
     </NavigationContainer>
