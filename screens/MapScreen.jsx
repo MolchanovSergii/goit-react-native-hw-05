@@ -1,32 +1,40 @@
+import MapView, { Marker } from "react-native-maps";
 import { Text, View, StyleSheet } from "react-native";
 
-const MapScreen = () => {
+const MapScreen = ({ route }) => {
+  const { location } = route.params;
+
   return (
     <View style={style.container}>
-      {/* <Text style={style.title}>MapScreen</Text> */}
+      <MapView
+        style={style.map}
+        initialRegion={{
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+      >
+        <Marker
+          coordinate={{
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          }}
+          title="Photo Location"
+        />
+      </MapView>
     </View>
   );
 };
 
 const style = StyleSheet.create({
   container: {
-    justifyContent: "center",
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "flex-end",
     alignItems: "center",
-    width: "100%",
-    paddingLeft: 16,
-    paddingRight: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 0, 0, 0.3)",
-    borderBottomStyle: "solid",
   },
-  title: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 17,
-    fontWeight: 500,
-    lineHeight: 22,
-    letterSpacing: -0.41,
-    textAlign: "center",
-    marginBottom: 33,
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
 });
 

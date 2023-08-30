@@ -69,6 +69,20 @@ const CreatePostsScreen = ({ navigation }) => {
     }
 
     let location = await Location.getCurrentPositionAsync({});
+    const address = await Location.reverseGeocodeAsync(location.coords);
+
+    const truncateAddress = (address, length = 25) => {
+      return address.length > length
+        ? address.substr(0, length - 1) + "…"
+        : address;
+    };
+
+    if (address && address.length) {
+      const fullAddress = `${address[0].country}, ${address[0].region}`;
+      const truncatedAddress = truncateAddress(fullAddress);
+      setLocationName(truncatedAddress);
+    }
+
     setUserLocation(location);
 
     await handleTakePhoto();
