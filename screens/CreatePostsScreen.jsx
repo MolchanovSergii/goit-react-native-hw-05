@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
@@ -92,38 +93,42 @@ const CreatePostsScreen = ({ navigation }) => {
 
   return (
     <View style={style.container}>
-      <Camera style={style.camera} type={type} ref={setCameraRef}>
-        <View style={style.photoView}>
-          <TouchableOpacity
-            style={style.flipContainer}
-            onPress={() => {
-              setType(
-                type === Camera.Constants.Type.back
-                  ? Camera.Constants.Type.front
-                  : Camera.Constants.Type.back
-              );
-            }}
-          >
-            <Text style={{ fontSize: 18, marginBottom: 10, color: "white" }}>
-              {" "}
-              Flip{" "}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={style.button}
-            onPress={async () => {
-              if (cameraRef) {
-                const { uri } = await cameraRef.takePictureAsync();
-                await MediaLibrary.createAssetAsync(uri);
-              }
-            }}
-          >
-            <View style={style.takePhotoOut}>
-              <Feather name="camera" size={24} color="black" />
-            </View>
-          </TouchableOpacity>
-        </View>
-      </Camera>
+      {photoUri ? (
+        <Image style={style.camera} source={{ uri: photoUri }} />
+      ) : (
+        <Camera style={style.camera} type={type} ref={setCameraRef}>
+          <View style={style.photoView}>
+            <TouchableOpacity
+              style={style.flipContainer}
+              onPress={() => {
+                setType(
+                  type === Camera.Constants.Type.back
+                    ? Camera.Constants.Type.front
+                    : Camera.Constants.Type.back
+                );
+              }}
+            >
+              <Text style={{ fontSize: 18, marginBottom: 10, color: "white" }}>
+                {" "}
+                Flip{" "}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={style.button}
+              onPress={async () => {
+                if (cameraRef) {
+                  const { uri } = await cameraRef.takePictureAsync();
+                  await MediaLibrary.createAssetAsync(uri);
+                }
+              }}
+            >
+              <View style={style.takePhotoOut}>
+                <Feather name="camera" size={24} color="black" />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Camera>
+      )}
       <TextInput
         placeholder="Назва"
         style={style.input}
