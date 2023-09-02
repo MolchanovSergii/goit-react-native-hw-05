@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+
 import {
   Text,
   View,
@@ -44,6 +46,12 @@ const CreatePostsScreen = ({ navigation }) => {
       });
     }
   }, [photoUri]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setPhotoUri("");
+    }, [])
+  );
 
   if (hasPermission === null) {
     return <View />;
@@ -117,8 +125,7 @@ const CreatePostsScreen = ({ navigation }) => {
               style={style.button}
               onPress={async () => {
                 if (cameraRef) {
-                  const { uri } = await cameraRef.takePictureAsync();
-                  await MediaLibrary.createAssetAsync(uri);
+                  handleTakePhoto();
                 }
               }}
             >
